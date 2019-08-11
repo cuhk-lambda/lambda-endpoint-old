@@ -24,7 +24,7 @@ instance FromJSON SubmitInfo
 submit :: String -> Handle -> IO ThreadId
 submit x handle = do
     submitStart x
-    forkIO $ runSubmit x handle
+    forkIO $ runSubmit x handle 0
 
 submitStart :: String -> IO ()
 submitStart x = do
@@ -42,8 +42,8 @@ submitFinished x = do
     BS.putStrLn $ getResponseBody res
     return ()
 
-runSubmit :: String -> Handle -> IO ()
-runSubmit identity handle  = do
+runSubmit :: String -> Handle -> Int -> IO ()
+runSubmit identity handle chunkNo  = do
     stateClose <- hIsClosed handle
     stateEOF   <- hIsEOF handle
     if stateClose || stateEOF 
@@ -52,12 +52,18 @@ runSubmit identity handle  = do
         return ()
     else do
         field <- BS.hGet handle submitChunkSize
-        jsonData  <- buildProgressBody identity field
+        jsonData  <- buildProgressBody identity field chunkNo
         request <- parseRequest "POST http://httpbin.org/post"
         res <- httpLBS $ setRequestBodyLBS jsonData $ setRequestHeader "Content-Type" ["application/json"] request
         BS.putStrLn $ getResponseBody res
-        runSubmit identity handle
+        runSubmit identity handle (chunkNo + 1)
 
-buildProgressBody :: String -> BS.ByteString -> IO (BS.ByteString)
-buildProgressBody identity field = return $ BS.toLazyByteString $
-    "{\"trace\":\"" <> BS.stringUtf8 identity <> "\", \"field\":\""  <> BS.lazyByteString (B64.encode field) <> "\"}"
+buildProgressBody :: String -> BS.ByteString -> Int -> IO (BS.ByteString)
+buildProgressBody identity field chunkNo = return $ BS.toLazyByteString $
+    "{\"trace\":\"" 
+    <> BS.stringUtf8 identity 
+    <> "\", \"no\":" 
+    <> BS.intDec chunkNo
+    <> ", \"field\":\""  
+    <> BS.lazyByteString (B64.encode field) 
+    <> "\"}"

@@ -1,7 +1,7 @@
 module Settings.Lambda where
 
 rootPassword :: String
-rootPassword = "<Dioniet is so cute!!!!>"
+rootPassword = "778878ZZzz"
 
 bPFPath :: String
 bPFPath = "/usr/bin/bpftrace"
