@@ -1,13 +1,17 @@
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell #-}
 module Settings.Lambda where
+import Settings.LambdaTH
 
+readConfig
 rootPassword :: String
-rootPassword = "778878ZZzz"
+rootPassword = getRootPassword global
 
 bPFPath :: String
-bPFPath = "/usr/bin/bpftrace"
+bPFPath = getBPFPath global
 
 sTapPath :: String
-sTapPath = "/usr/bin/stap"
+sTapPath = getSTapPath global
 
 submitChunkSize :: Int
-submitChunkSize = 51200
+submitChunkSize = getSubmitChunkSize global
