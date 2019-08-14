@@ -32,9 +32,12 @@ tests:
     - hspec >=2.0.0
     - yesod-test
 dependencies:
+- text-short
+- argon2 >= 1.3.0.1
 - process
 - hspec
 - uuid
+- mtl
 - base64-bytestring
 - base >=4.9.1.0 && <5
 - yesod >=1.6 && <1.7

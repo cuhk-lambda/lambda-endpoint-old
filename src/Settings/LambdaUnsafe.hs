@@ -1,18 +1,18 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE DeriveLift #-}
-module Settings.LambdaTH where
-import Language.Haskell.TH
-import Language.Haskell.TH.Syntax
+module Settings.LambdaUnsafe where
 import Data.Aeson
 import Data.Yaml
+import Data.IORef
+import System.IO.Unsafe
 data LambdaGlobalInfo = LambdaGlobalInfo {
     getRootPassword :: {-# UNPACK #-} !String,
     getBPFPath :: {-# UNPACK #-} !String,
     getSTapPath :: {-# UNPACK #-} !String,
     getSubmitChunkSize :: {-# UNPACK #-} !Int,
-    getPlatformUrl :: {-# UNPACK #-} !String
-} deriving Lift
+    getPlatformUrl :: {-# UNPACK #-} !String,
+    getSecret :: {-# UNPACK #-} !String,
+    getUUID :: {-#UNPACK#-} !String
+} 
 
 instance FromJSON LambdaGlobalInfo where
     parseJSON = withObject "LambdaGlobalInfo" $ \v -> LambdaGlobalInfo
@@ -21,33 +21,43 @@ instance FromJSON LambdaGlobalInfo where
         <*> v .: "stap-path"
         <*> v .: "submit-chunk-size"
         <*> v .: "platform-url"
+        <*> v .: "secret"
+        <*> v .: "endpoint-uuid"
 
 instance ToJSON LambdaGlobalInfo where
     -- this generates a Value
-    toJSON (LambdaGlobalInfo rootPassword'  bPFPath' sTapPath' submitChunkSize' platformUrl') =
+    toJSON (LambdaGlobalInfo rootPassword'  bPFPath' sTapPath' submitChunkSize' platformUrl' secret' uuid') =
         object [
             "root-password" .= rootPassword', 
             "bpf-path" .= bPFPath', 
             "stap-path" .= sTapPath', 
             "submit-chunk-size" .= submitChunkSize',
-            "platform-url" .= platformUrl'
+            "platform-url" .= platformUrl',
+            "secret" .= secret',
+            "endpoint-uuid" .= uuid'
         ]
         
     -- this encodes directly to a bytestring Builder
-    toEncoding (LambdaGlobalInfo rootPassword'  bPFPath' sTapPath' submitChunkSize' platformUrl') =
+    toEncoding (LambdaGlobalInfo rootPassword'  bPFPath' sTapPath' submitChunkSize' platformUrl' secret' uuid') =
         pairs (
             "root-password" .= rootPassword' 
             <> "bpf-path" .= bPFPath' 
             <> "stap-path" .= sTapPath' 
             <> "submit-chunk-size" .= submitChunkSize'
             <> "platform-url" .= platformUrl'
+            <> "secret" .= secret'
+            <> "endpoint-uuid" .= uuid'
         )
 
+{-# NOINLINE global' #-}
+global' :: IORef LambdaGlobalInfo
+global' = unsafePerformIO $ do
+    info <- decodeFileThrow "config/lambda-settings.yml" :: IO LambdaGlobalInfo
+    newIORef info
 
-readConfig :: DecsQ
-readConfig = do
-    info <- decodeFileThrow "config/lambda-settings.yml" :: Q LambdaGlobalInfo
-    [d|global :: LambdaGlobalInfo 
-       global = info|]
+{-# NOINLINE global #-}
+global :: LambdaGlobalInfo
+global = unsafePerformIO $ readIORef global'
+    
 
 

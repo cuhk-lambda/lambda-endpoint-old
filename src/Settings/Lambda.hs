@@ -2,10 +2,8 @@
 {-# LANGUAGE TemplateHaskell   #-}
 
 module Settings.Lambda where
-
-import           Settings.LambdaTH
-
-readConfig
+import qualified Data.ByteString.Char8 as BS
+import           Settings.LambdaUnsafe
 
 rootPassword :: String
 rootPassword = getRootPassword global
@@ -21,3 +19,9 @@ submitChunkSize = getSubmitChunkSize global
 
 platformUrl :: String
 platformUrl = getPlatformUrl global
+
+secret :: BS.ByteString
+secret = BS.pack $ getSecret global
+
+endpointUUID :: String
+endpointUUID = getUUID global
