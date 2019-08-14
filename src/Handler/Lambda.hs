@@ -1,25 +1,28 @@
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE DeriveGeneric         #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE NoImplicitPrelude     #-}
+{-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE TemplateHaskell       #-}
+{-# LANGUAGE TypeFamilies          #-}
+
 module Handler.Lambda where
 
-import Import
-import Data.Aeson
-data HeartbeatReply = HeartbeatReply {
-      status :: Text
-    , time  :: UTCTime
-} deriving (Generic, Show)
+import           Data.Aeson
+import           Import
+
+data HeartbeatReply =
+  HeartbeatReply
+    { status :: Text
+    , time   :: UTCTime
+    }
+  deriving (Generic, Show)
 
 instance ToJSON HeartbeatReply where
-    toEncoding = genericToEncoding defaultOptions
-instance FromJSON HeartbeatReply
+  toEncoding = genericToEncoding defaultOptions
 
+instance FromJSON HeartbeatReply
 
 getHeartbeatR :: Handler Value
 getHeartbeatR = do
-    t <- liftIO getCurrentTime
-    return $ toJSON $ HeartbeatReply "alive" t
-
+  t <- liftIO getCurrentTime
+  return $ toJSON $ HeartbeatReply "alive" t

@@ -1,9 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TemplateHaskell   #-}
+
 module Settings.Lambda where
-import Settings.LambdaTH
+
+import           Settings.LambdaTH
 
 readConfig
+
 rootPassword :: String
 rootPassword = getRootPassword global
 
@@ -15,3 +18,6 @@ sTapPath = getSTapPath global
 
 submitChunkSize :: Int
 submitChunkSize = getSubmitChunkSize global
+
+platformUrl :: String
+platformUrl = getPlatformUrl global
