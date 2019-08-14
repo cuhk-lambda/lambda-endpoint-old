@@ -4,7 +4,7 @@
 
 module Lambda.Communication where
 
-import           Control.Concurrent
+
 import           Data.Aeson
 import qualified Data.ByteString.Base64.Lazy  as B64
 import qualified Data.ByteString.Lazy         as BS
