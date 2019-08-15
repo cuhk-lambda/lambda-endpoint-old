@@ -5,3 +5,5 @@
 /favicon.ico FaviconR GET
 /robots.txt RobotsR GET
 /heartbeat HeartbeatR GET
+/traces  TraceR GET
+/trace  PutTraceR PUT

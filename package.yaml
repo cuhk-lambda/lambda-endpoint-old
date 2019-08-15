@@ -38,6 +38,7 @@ dependencies:
 - hspec
 - uuid
 - mtl
+- split
 - base64-bytestring
 - base >=4.9.1.0 && <5
 - yesod >=1.6 && <1.7
