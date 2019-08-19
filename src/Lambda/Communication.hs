@@ -41,10 +41,9 @@ submitStart :: String -> IO ()
 submitStart x = do
   request <- parseRequest $ "PUT " <> platformUrl-- <> "/submit"
   hash <- hashedSecret
-  res <- httpLBS 
+  _ <- httpLBS 
     $ setRequestBodyJSON (Info x "start") 
     $ setRequestHeader "Authorization" [BSS.append (BSS.pack endpointUUID) hash] request
-  BS8.putStrLn $ getResponseBody res
   return ()
 
 submitFinished :: String -> Handle -> ProcessHandle -> IO ()
@@ -52,10 +51,9 @@ submitFinished x herr process = do
   body <- buildFinishedBody x herr process
   request <- parseRequest $ "PUT " <> platformUrl-- <> "/submit"
   hash <- hashedSecret
-  res <- httpLBS 
+  _ <- httpLBS 
     $ setRequestBodyLBS body $ setRequestHeader "Content-Type" ["application/json"] 
     $ setRequestHeader "Authorization" [BSS.append (BSS.pack endpointUUID) hash] request
-  BS8.putStrLn $ getResponseBody res <> "\nfinished"
   delRunningTrace x
   return ()
 
@@ -72,12 +70,11 @@ runSubmit identity hout herr process chunkNo = do
       jsonData <- buildProgressBody identity field chunkNo
       request <- parseRequest $ "PUT " <> platformUrl-- <> "/submit"
       hash <- hashedSecret
-      res <-
+      _ <-
         httpLBS $
         setRequestBodyLBS jsonData $
         setRequestHeader "Content-Type" ["application/json"] $
         setRequestHeader "Authorization" [BSS.append (BSS.pack endpointUUID) hash] request
-      BS8.putStrLn $ getResponseBody res
       runSubmit identity hout herr process (chunkNo + 1)
 
 buildProgressBody :: String -> BS.ByteString -> Int -> IO (BS.ByteString)

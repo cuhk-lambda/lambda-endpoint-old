@@ -19,7 +19,7 @@ generateFile :: Trace a => a -> Int -> IO String
 generateFile x t = do
   text <- return $ generate x t
   uuid <- nextRandom
-  let filePath = "/tmp/lambda-" <> show uuid <> ".stap"
+  let filePath = "/tmp/lambda-" <> show uuid <> ".trace"
   withFile filePath WriteMode (`TIO.hPutStr` text)
   return filePath
 

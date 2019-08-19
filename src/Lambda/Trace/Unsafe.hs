@@ -17,3 +17,7 @@ delRunningTrace path = H.delete runningTraces path
 
 getRunningTrace :: String -> IO (Maybe TraceInfo)
 getRunningTrace path = H.lookup runningTraces path
+
+getAllRunning :: IO [(String, TraceInfo)]
+getAllRunning = H.toList runningTraces
+

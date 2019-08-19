@@ -5,14 +5,22 @@
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeFamilies          #-}
 
-module Handler.Lambda (getHeartbeatR, getTraceR, putPutTraceR, postStartTraceR, postRemoveTraceR) where
+module Handler.Lambda (
+  getHeartbeatR, 
+  getTraceR, 
+  putPutTraceR, 
+  postStartTraceR, 
+  postRemoveTraceR,
+  getRunningTracesR,
+  getRunningTraceR
+) where
 import           Lambda.Endpoint
 import           Data.Aeson
 import qualified Data.Text          as T 
 import           Import
 import           Lambda.Trace 
 import           Database.Persist.Sql
-
+import           Lambda.Trace.Unsafe
 data RemoveTrace = 
   RemoveTrace {
     removeType :: Text,
@@ -46,6 +54,12 @@ data InfoWithId =
     traceNo :: Int64
   } deriving (Generic, Show)
 
+data InfoWithPath =
+    InfoWithPath {
+      info' :: TraceInfo,
+      path :: String
+  } deriving (Generic, Show)
+
 instance ToJSON HeartbeatReply where
   toEncoding = genericToEncoding defaultOptions
 instance FromJSON HeartbeatReply
@@ -66,6 +80,10 @@ instance FromJSON StartTraceReply
 instance ToJSON RemoveTrace where
   toEncoding = genericToEncoding defaultOptions
 instance FromJSON RemoveTrace
+
+instance ToJSON InfoWithPath where
+  toEncoding = genericToEncoding defaultOptions
+instance FromJSON InfoWithPath
 
 getHeartbeatR :: Handler Value
 getHeartbeatR = withVerification $ do
@@ -135,6 +153,24 @@ postRemoveTraceR = withVerification $ do
       return "deleted"
     _ -> do
       invalidArgs ["removeType"]
+
+getRunningTracesR :: Handler Value
+getRunningTracesR = withVerification $ do
+  xs <- liftIO getAllRunning
+  return $ toJSONList (map (\(x, y)-> InfoWithPath y x) xs)
+
+getRunningTraceR :: Handler Value
+getRunningTraceR = withVerification $ do
+  parm <- lookupGetParam "path"
+  liftIO $ print parm
+  case parm of 
+    Just a -> do
+      i <- liftIO $ getRunningTrace (T.unpack a)
+      case i of
+        Nothing -> return (toJSON ())
+        Just x -> return (toJSON x)
+    Nothing ->
+      invalidArgs ["path"]
     
 
 
