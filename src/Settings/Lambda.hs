@@ -3,7 +3,7 @@
 
 module Settings.Lambda where
 import qualified Data.ByteString.Char8 as BS
-import           Settings.LambdaUnsafe
+import           Settings.Lambda.Unsafe
 
 rootPassword :: String
 rootPassword = getRootPassword global

@@ -8,7 +8,9 @@ flags:
     default: false
     description: Turn on development settings, like auto-reload templates.
 library:
-  source-dirs: src
+  source-dirs: 
+    - src
+    - config
   when:
   - then:
       cpp-options: -DDEVELOPMENT
@@ -17,6 +19,7 @@ library:
       - -fwarn-tabs
       - -O0
     else:
+      cpp-options: -O3
       ghc-options:
       - -Wall
       - -fwarn-tabs
@@ -33,6 +36,7 @@ tests:
     - yesod-test
 dependencies:
 - text-short
+- hashtables
 - argon2 >= 1.3.0.1
 - process
 - hspec

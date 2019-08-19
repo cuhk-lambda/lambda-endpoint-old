@@ -5,13 +5,20 @@
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeFamilies          #-}
 
-module Handler.Lambda (getHeartbeatR, getTraceR, putPutTraceR, postStartTraceR) where
+module Handler.Lambda (getHeartbeatR, getTraceR, putPutTraceR, postStartTraceR, postRemoveTraceR) where
 import           Lambda.Endpoint
 import           Data.Aeson
 import qualified Data.Text          as T 
 import           Import
 import           Lambda.Trace 
 import           Database.Persist.Sql
+
+data RemoveTrace = 
+  RemoveTrace {
+    removeType :: Text,
+    removeId   :: Int64
+  }
+  deriving (Generic, Show)
 
 data HeartbeatReply =
   HeartbeatReply
@@ -56,6 +63,10 @@ instance ToJSON StartTraceReply where
   toEncoding = genericToEncoding defaultOptions
 instance FromJSON StartTraceReply
 
+instance ToJSON RemoveTrace where
+  toEncoding = genericToEncoding defaultOptions
+instance FromJSON RemoveTrace
+
 getHeartbeatR :: Handler Value
 getHeartbeatR = withVerification $ do
   t <- liftIO getCurrentTime
@@ -88,7 +99,6 @@ putPutTraceR = withVerification $ do
 postStartTraceR :: Handler Value
 postStartTraceR = withVerification $ do
   body <- requireCheckJsonBody :: Handler StartTrace
-  liftIO $ print body
   case (traceT body) of
     "BPF" -> do 
       let key = BPFKey (SqlBackendKey $ Handler.Lambda.traceId body)
@@ -110,6 +120,24 @@ postStartTraceR = withVerification $ do
           invalidArgs ["traceId"]
     _ -> do 
       invalidArgs ["traceType"]
+
+postRemoveTraceR :: Handler Text
+postRemoveTraceR = withVerification $ do
+  body <- requireCheckJsonBody :: Handler RemoveTrace
+  case (removeType body) of
+    "BPF" -> do
+      let key = BPFKey (SqlBackendKey $ Handler.Lambda.removeId body)
+      _ <- runDB $ delete key
+      return "deleted"
+    "STAP" -> do
+      let key = STapKey (SqlBackendKey $ Handler.Lambda.removeId body)
+      _ <- runDB $ delete key
+      return "deleted"
+    _ -> do
+      invalidArgs ["removeType"]
+    
+
+
 
 
 

@@ -7,4 +7,5 @@
 /heartbeat HeartbeatR GET
 /traces  TraceR GET
 /trace  PutTraceR PUT
-/starttrace StartTraceR POST
+/start-trace StartTraceR POST
+/remove-trace RemoveTraceR POST

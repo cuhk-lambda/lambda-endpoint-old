@@ -18,7 +18,7 @@ import           System.IO
 import           System.Process
 import           System.Exit
 import           Lambda.Endpoint
-
+import           Lambda.Trace.Unsafe
 data SubmitInfo =
   Info
     { trace  :: String
@@ -56,6 +56,7 @@ submitFinished x herr process = do
     $ setRequestBodyLBS body $ setRequestHeader "Content-Type" ["application/json"] 
     $ setRequestHeader "Authorization" [BSS.append (BSS.pack endpointUUID) hash] request
   BS8.putStrLn $ getResponseBody res <> "\nfinished"
+  delRunningTrace x
   return ()
 
 runSubmit :: String -> Handle -> Handle -> ProcessHandle -> Int -> IO ()

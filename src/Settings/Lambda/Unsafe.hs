@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Settings.LambdaUnsafe where
+module Settings.Lambda.Unsafe where
 import Data.Aeson
 import Data.Yaml
 import Data.IORef
