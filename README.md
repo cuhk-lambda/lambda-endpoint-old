@@ -34,7 +34,7 @@ example:
 ## API
 - `/heartbeat GET`: return a json with field `status` and `time`. `status` should be `alive` and `time` should be the utc time when replying the request.
 - `/traces GET`: get all traces in the database. The format is as following
-	```json
+	```
 	{
 		"traceNo": 1, // database id
 		"info": {
@@ -48,7 +48,7 @@ example:
 	}
 	```
 - `/trace PUT`: put a trace template to the database. The content type must be set as `application/json`. The body format is as the following:
-	```json
+	```
 	{
 		"process": "/bin/bash", // the process to trace
 		"funtions": ["xmalloc", "xfree"], // the functions to trace
@@ -59,7 +59,7 @@ example:
 	}
 	```
 - `/trace/start POST`: start the trace. The content type must be set as `application/json`. The body format is as the following:
-	```json
+	```
 	{
 		"traceT": "STAP", // trace type
 		"traceId": 1, // trace id (database)
@@ -67,21 +67,21 @@ example:
 	}
 	```
 	The return form is also json:
-	```json
+	```
 	{
 		"thread": 54, // light weight haskell thread id
 		"filePath": "/tmp/4633d686-f75d-4d1f-8415-02ce37d9e5f8.trace" // used as the identifier of a trace
 	}
 	```
 - `/trace/remove POST`: remove a trace from the database. The content type must be set as `application/json`. The body format is as the following:
-	```json
+	```
 	{
 		"removeType": "STAP", // trace type
 		"removeId": 5 // trace id
 	}
 	```
 - `/trace/running GET`: get a running trace info. Example url: `/trace/running?path=/tmp/4633d686-f75d-4d1f-8415-02ce37d9e5f8.trace`. The return format is json:
-	```json
+	```
 	{
 		"process": "/bin/bash", // the process to trace
 		"funtions": ["xmalloc", "xfree"], // the functions to trace
