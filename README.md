@@ -73,6 +73,31 @@ example:
 		"filePath": "/tmp/4633d686-f75d-4d1f-8415-02ce37d9e5f8.trace" // used as the identifier of a trace
 	}
 	```
+	The trace info will be sent to the server via several HTTP PUT request. The url is "<platform-url>/submit"
+	- At the beginning, a start request will be sent:
+	  ```
+	  {
+		  "trace": "/tmp/4633d686-f75d-4d1f-8415-02ce37d9e5f8.trace",
+		  "status": "start"
+	  }
+	  ```
+	- Then, whenever the buffer limit is reached, a request contains chunked trace result will be sent.
+	  ```
+	  {
+	  	  "trace": "/tmp/4633d686-f75d-4d1f-8415-02ce37d9e5f8.trace",
+		  "no": <integer represents the chunk number (increasing)>,
+		  "field": <BASE64 of current chunk info>
+	  }
+	  ```
+	- When finished, a finishing request will be sent:
+	  ```
+	  {
+		  "trace": "/tmp/4633d686-f75d-4d1f-8415-02ce37d9e5f8.trace",
+		  "stderr": <as the name>,
+		  "code": <exit code>,
+		  "status": "finished"
+	  }
+	  ```
 - `/trace/remove POST`: remove a trace from the database. The content type must be set as `application/json`. The body format is as the following:
 	```
 	{
@@ -93,9 +118,9 @@ example:
 	```
 - `/traces/running/all GET`: get all running traces. The return type is json list. Objects is same as `/trace/running GET`.
 
-
-## TODO:
-
-- add API to kill a running trace.
-- the rest of this TODO list.
-
+- `/trace/kill POST`: kill a running trace. Return a plaintext `Killed`. It will not check whether the given process exists or not, but simply ignores those non-exsiting process. The request format should be
+	```
+	{
+		"killPath": "/tmp/4633d686-f75d-4d1f-8415-02ce37d9e5f8.trace"
+	}
+	```

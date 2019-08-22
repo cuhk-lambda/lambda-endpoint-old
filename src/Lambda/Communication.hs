@@ -39,7 +39,7 @@ submit x hout herr process = do
 
 submitStart :: String -> IO ()
 submitStart x = do
-  request <- parseRequest $ "PUT " <> platformUrl-- <> "/submit"
+  request <- parseRequest $ "PUT " <> platformUrl <> "/submit"
   hash <- hashedSecret
   _ <- httpLBS 
     $ setRequestBodyJSON (Info x "start") 
@@ -49,7 +49,7 @@ submitStart x = do
 submitFinished :: String -> Handle -> ProcessHandle -> IO ()
 submitFinished x herr process = do
   body <- buildFinishedBody x herr process
-  request <- parseRequest $ "PUT " <> platformUrl-- <> "/submit"
+  request <- parseRequest $ "PUT " <> platformUrl <> "/submit"
   hash <- hashedSecret
   _ <- httpLBS 
     $ setRequestBodyLBS body $ setRequestHeader "Content-Type" ["application/json"] 
@@ -68,7 +68,7 @@ runSubmit identity hout herr process chunkNo = do
     else do
       field <- BS.hGet hout submitChunkSize
       jsonData <- buildProgressBody identity field chunkNo
-      request <- parseRequest $ "PUT " <> platformUrl-- <> "/submit"
+      request <- parseRequest $ "PUT " <> platformUrl <> "/submit"
       hash <- hashedSecret
       _ <-
         httpLBS $
