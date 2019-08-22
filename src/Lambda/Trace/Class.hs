@@ -1,24 +1,30 @@
-{-# LANGUAGE DeriveGeneric    #-}
+{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
-module Lambda.Trace.Class where
-import           GHC.Generics    
-import           Data.Aeson
-import qualified Data.Text.Lazy    as T
-import           Model
-import qualified Lambda.BPFTrace   as BPFT
-import qualified Lambda.SystemTap  as STAP
-import           Settings.Lambda
-data TraceInfo = TraceInfo {
-  process :: T.Text,
-  functions :: [T.Text],
-  environment :: [T.Text],
-  value :: [T.Text],
-  options :: [T.Text],
-  traceType :: T.Text
-} deriving (Generic, Show)
 
-instance ToJSON TraceInfo where 
+module Lambda.Trace.Class where
+
+import           Data.Aeson
+import qualified Data.Text.Lazy   as T
+import           GHC.Generics
+import qualified Lambda.BPFTrace  as BPFT
+import qualified Lambda.SystemTap as STAP
+import           Model
+import           Settings.Lambda
+
+data TraceInfo =
+  TraceInfo
+    { process     :: !T.Text
+    , functions   :: ![T.Text]
+    , environment :: ![T.Text]
+    , value       :: ![T.Text]
+    , options     :: ![T.Text]
+    , traceType   :: !T.Text
+    }
+  deriving (Generic, Show)
+
+instance ToJSON TraceInfo where
   toEncoding = genericToEncoding defaultOptions
+
 instance FromJSON TraceInfo
 
 class Trace a where

@@ -1,0 +1,7 @@
+root-password: <your root password>
+bpf-path: /usr/bin/bpftrace
+stap-path: /usr/bin/stap
+submit-chunk-size: 51200
+platform-url: <your platform url>
+secret: abc123456 # please change it
+endpoint-uuid: 4633d686-f75d-4d1f-8415-02ce37d9e5f8 # please change it

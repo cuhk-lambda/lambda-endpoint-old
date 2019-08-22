@@ -17,7 +17,6 @@ import           Text.Jasmine         (minifym)
 
 -- Used only when in "auth-dummy-login" setting is enabled.
 -- import           Yesod.Auth.Dummy
-
 -- import qualified Data.CaseInsensitive as CI
 -- import qualified Data.Text.Encoding   as TE
 -- import           Yesod.Auth.OpenId    (IdentifierType (Claimed), authOpenId)
@@ -107,7 +106,7 @@ instance Yesod App
     _mcurrentRoute <- getCurrentRoute
         -- Get the breadcrumbs, as defined in the YesodBreadcrumbs instance.
         -- Define the menu items of the header.
-    let _menuItems = [ ]
+    let _menuItems = []
     let _navbarLeftMenuItems = [x | NavbarLeft x <- _menuItems]
     let _navbarRightMenuItems = [x | NavbarRight x <- _menuItems]
     let _navbarLeftFilteredMenuItems =
@@ -125,7 +124,6 @@ instance Yesod App
         $(widgetFile "default-layout")
     withUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
     -- The page to be redirected to when authentication is required.
-  
   addStaticContent ::
        Text -- ^ The file extension
     -> Text -- ^ The MIME content type
@@ -166,9 +164,6 @@ instance YesodPersist App where
 instance YesodPersistRunner App where
   getDBRunner :: Handler (DBRunner App, Handler ())
   getDBRunner = defaultGetDBRunner appConnPool
-
-
-
 
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.
