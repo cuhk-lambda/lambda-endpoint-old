@@ -12,7 +12,8 @@ module Handler.Lambda (
   postStartTraceR, 
   postRemoveTraceR,
   getRunningTracesR,
-  getRunningTraceR
+  getRunningTraceR,
+  postKillRunningTraceR
 ) where
 import           Lambda.Endpoint
 import           Data.Aeson
@@ -23,23 +24,23 @@ import           Database.Persist.Sql
 import           Lambda.Trace.Unsafe
 data RemoveTrace = 
   RemoveTrace {
-    removeType :: Text,
-    removeId   :: Int64
+    removeType :: {-#UNPACK#-}!Text,
+    removeId   :: {-#UNPACK#-}!Int64
   }
   deriving (Generic, Show)
 
 data HeartbeatReply =
   HeartbeatReply
-    { status :: Text
-    , time   :: UTCTime
+    { status :: {-#UNPACK#-}!Text
+    , time   :: {-#UNPACK#-}!UTCTime
     }
   deriving (Generic, Show)
 
 data StartTrace = 
   StartTrace {
-    traceT :: Text,
-    traceId :: Int64,
-    lasting :: Int 
+    traceT :: {-#UNPACK#-}!Text,
+    traceId :: {-#UNPACK#-}!Int64,
+    lasting :: {-#UNPACK#-}!Int 
   } deriving (Generic, Show)
 
 data StartTraceReply = 
@@ -50,13 +51,17 @@ data StartTraceReply =
 
 data InfoWithId =
   InfoWithId {
-    info :: TraceInfo,
-    traceNo :: Int64
+    info :: {-#UNPACK#-}!TraceInfo,
+    traceNo :: {-#UNPACK#-}!Int64
   } deriving (Generic, Show)
+
+data KillThread = KillThread {
+    killPath :: String
+} deriving (Generic, Show)
 
 data InfoWithPath =
     InfoWithPath {
-      info' :: TraceInfo,
+      info' :: {-#UNPACK#-}!TraceInfo,
       path :: String
   } deriving (Generic, Show)
 
@@ -84,6 +89,10 @@ instance FromJSON RemoveTrace
 instance ToJSON InfoWithPath where
   toEncoding = genericToEncoding defaultOptions
 instance FromJSON InfoWithPath
+
+instance ToJSON KillThread where
+  toEncoding = genericToEncoding defaultOptions
+instance FromJSON KillThread
 
 getHeartbeatR :: Handler Value
 getHeartbeatR = withVerification $ do
@@ -157,7 +166,7 @@ postRemoveTraceR = withVerification $ do
 getRunningTracesR :: Handler Value
 getRunningTracesR = withVerification $ do
   xs <- liftIO getAllRunning
-  return $ toJSONList (map (\(x, y)-> InfoWithPath y x) xs)
+  return $ toJSONList (map (\(x, (_, _, y))-> InfoWithPath y x) xs)
 
 getRunningTraceR :: Handler Value
 getRunningTraceR = withVerification $ do
@@ -168,9 +177,16 @@ getRunningTraceR = withVerification $ do
       i <- liftIO $ getRunningTrace (T.unpack a)
       case i of
         Nothing -> return (toJSON ())
-        Just x -> return (toJSON x)
+        Just (_, _, x) -> return (toJSON x)
     Nothing ->
       invalidArgs ["path"]
+
+postKillRunningTraceR :: Handler T.Text
+postKillRunningTraceR = withVerification $ do
+  body <- requireCheckJsonBody :: Handler KillThread
+  liftIO $ killRunningTrace (killPath body)
+  return "Killed"
+
     
 
 

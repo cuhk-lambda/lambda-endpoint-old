@@ -11,3 +11,4 @@
 /trace/remove RemoveTraceR POST
 /trace/running RunningTraceR GET
 /traces/running/all RunningTracesR GET
+/trace/kill KillRunningTraceR POST

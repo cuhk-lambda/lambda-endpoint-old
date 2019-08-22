@@ -36,13 +36,13 @@ startTrace a t = do
         }
   hPutStr hin rootPassword
   hClose hin
-  putRunningTrace filePath (toInfo a)
   return (hout, herr, p, filePath)
 
 trace :: Trace a => a -> Int -> IO (ThreadId, FilePath)
 trace a t = do
   (hout, herr, process', path) <- startTrace a t
   tid <- forkIO $ C.submit path hout herr process'
+  putRunningTrace path (tid, (Nothing, Just hout, Just herr, process'), toInfo a)
   return (tid, path)
 
 
